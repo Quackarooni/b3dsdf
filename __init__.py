@@ -53,20 +53,20 @@ def shader_cat_generator():
                 if group_name.startswith("+"):
                     layout.label(text=group_name.removeprefix("+"))
                     continue
-                entry = group_name.split("@")
+
+                group_name, *tooltip = group_name.split("@")
                 props = layout.operator(
                     NODE_OT_group_add.bl_idname,
-                    text=entry[0]
+                    text=group_name
                     .replace("sd", "")
                     .replace("op", "")
                     .replace("3D", "")
                     .replace("LN", ""),
                 )
-                props.group_name = entry[0]
-
+                props.group_name = group_name
                 # Override tooltip
-                if len(entry) > 1:
-                    props.tooltip = entry[1]
+                if tooltip != []:
+                    props.tooltip = tooltip[0]
 
         itemid = submenu_name.removesuffix("_")
         
