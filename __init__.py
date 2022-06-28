@@ -43,8 +43,7 @@ dir_path = os.path.dirname(__file__)
 def shader_cat_generator():
     global shader_cat_list
     shader_cat_list = []
-    for item in sdf_group_cache.items():
-
+    for submenu_name in sdf_group_cache.keys():
         def custom_draw(self, context):
             layout = self.layout
             for group_name in sdf_group_cache[self.bl_label]:
@@ -69,7 +68,7 @@ def shader_cat_generator():
                 if len(entry) > 1:
                     props.tooltip = entry[1]
 
-        itemid = item[0].split("_")[0]
+        itemid = submenu_name.split("_")[0]
 
         menu_type = type(
             "NODE_MT_category_" + itemid,
@@ -77,7 +76,7 @@ def shader_cat_generator():
             {
                 "bl_idname": "NODE_MT_category_" + itemid.replace(" ", "_"),
                 "bl_space_type": "NODE_EDITOR",
-                "bl_label": item[0],
+                "bl_label": submenu_name,
                 "draw": custom_draw,
             },
         )
