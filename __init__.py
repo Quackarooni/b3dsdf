@@ -41,8 +41,8 @@ dir_path = os.path.dirname(__file__)
 
 # adapted from https://github.com/blender/blender/blob/master/release/scripts/modules/nodeitems_utils.py
 def shader_cat_generator():
-    global shader_cat_list
-    shader_cat_list = []
+    shader_cat_list.clear()
+    
     for submenu_name in sdf_group_cache.keys():
         def custom_draw(self, context):
             layout = self.layout
