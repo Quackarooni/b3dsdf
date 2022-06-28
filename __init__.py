@@ -165,11 +165,9 @@ class NODE_OT_group_add(Operator):
             if "." in group.name and not ".5" in group.name:
                 bpy.data.node_groups.remove(group)
 
-        bpy.ops.node.add_node(type="ShaderNodeGroup")
+        bpy.ops.node.add_group(name=self.group_name)
 
         node = context.selected_nodes[0]
-        node.node_tree = bpy.data.node_groups[self.group_name]
-
         node.location = context.space_data.cursor_location
         bpy.ops.transform.translate("INVOKE_DEFAULT")
         return {"FINISHED"}
