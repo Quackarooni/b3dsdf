@@ -51,7 +51,7 @@ def shader_cat_generator():
                     layout.separator(factor=1.0)
                     continue
                 if group_name.startswith("+"):
-                    layout.label(text=group_name.split("+")[-1])
+                    layout.label(text=group_name.removeprefix("+"))
                     continue
                 entry = group_name.split("@")
                 props = layout.operator(
@@ -68,8 +68,8 @@ def shader_cat_generator():
                 if len(entry) > 1:
                     props.tooltip = entry[1]
 
-        itemid = submenu_name.split("_")[0]
-
+        itemid = submenu_name.removesuffix("_")
+        
         menu_type = type(
             "NODE_MT_category_" + itemid,
             (bpy.types.Menu,),
@@ -84,7 +84,7 @@ def shader_cat_generator():
 
             def generate_menu_draw(name, label):
                 def draw_menu(self, context):
-                    self.layout.menu(name, text=label.split("_")[0])
+                    self.layout.menu(name, text=label.removesuffix("_"))
                     if "_" in label:
                         self.layout.separator(factor=1.0)
 
