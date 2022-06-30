@@ -154,18 +154,9 @@ class NODE_OT_group_add(Operator):
         with bpy.data.libraries.load(filepath, link=False) as (data_from, data_to):
             if self.group_name not in bpy.data.node_groups:
                 data_to.node_groups.append(self.group_name)
-        added_groups = list(set(bpy.data.node_groups) - old_groups)
-        for group in added_groups:
-            for node in group.nodes:
-                if node.type == "GROUP":
-                    new_name = node.node_tree.name.split(".")[0]
-                    node.node_tree = bpy.data.node_groups[new_name]
-            
-            if "." in group.name and not ".5" in group.name:
-                bpy.data.node_groups.remove(group)
 
         bpy.ops.node.add_group(name=self.group_name)
-
+        
         node = context.selected_nodes[0]
         node.location = context.space_data.cursor_location
         bpy.ops.transform.translate("INVOKE_DEFAULT")
