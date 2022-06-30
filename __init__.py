@@ -142,15 +142,15 @@ class NODE_OT_group_add(Operator):
         return props.tooltip
 
     def execute(self, context):
-        for file in os.listdir(dir_path):
-            if file.endswith(".blend"):
-                filepath = os.path.join(dir_path, file)
-                break
-        else:
-            raise FileNotFoundError("No .blend File in directory " + dir_path)
-
-        with bpy.data.libraries.load(filepath, link=False) as (data_from, data_to):
-            if self.group_name not in bpy.data.node_groups:
+        if self.group_name not in bpy.data.node_groups:
+            for file in os.listdir(dir_path):
+                if file.endswith(".blend"):
+                    filepath = os.path.join(dir_path, file)
+                    break
+            else:
+                raise FileNotFoundError("No .blend File in directory " + dir_path)
+        
+            with bpy.data.libraries.load(filepath, link=False) as (data_from, data_to):
                 data_to.node_groups.append(self.group_name)
 
         bpy.ops.node.add_group(name=self.group_name)
