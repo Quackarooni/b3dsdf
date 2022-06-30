@@ -142,8 +142,6 @@ class NODE_OT_group_add(Operator):
         return props.tooltip
 
     def execute(self, context):
-        old_groups = set(bpy.data.node_groups)
-
         for file in os.listdir(dir_path):
             if file.endswith(".blend"):
                 filepath = os.path.join(dir_path, file)
@@ -156,7 +154,7 @@ class NODE_OT_group_add(Operator):
                 data_to.node_groups.append(self.group_name)
 
         bpy.ops.node.add_group(name=self.group_name)
-        
+
         node = context.selected_nodes[0]
         node.location = context.space_data.cursor_location
         bpy.ops.transform.translate("INVOKE_DEFAULT")
