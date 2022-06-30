@@ -80,21 +80,19 @@ def shader_cat_generator():
                 "draw": custom_draw,
             },
         )
-        if menu_type not in shader_cat_list:
-
-            def generate_menu_draw(name, label):
-                def draw_menu(self, context):
-                    self.layout.menu(name, text=label.removesuffix("_"))
-                    if "_" in label:
-                        self.layout.separator(factor=1.0)
-
-                return draw_menu
-
-            bpy.utils.register_class(menu_type)
-            bpy.types.NODE_MT_sdf_menu.append(
-                generate_menu_draw(menu_type.bl_idname, menu_type.bl_label)
-            )
-            shader_cat_list.append(menu_type)
+        
+        def generate_menu_draw(name, label):
+            def draw_menu(self, context):
+                self.layout.menu(name, text=label.removesuffix("_"))
+                if "_" in label:
+                    self.layout.separator(factor=1.0)
+            return draw_menu
+            
+        bpy.utils.register_class(menu_type)
+        bpy.types.NODE_MT_sdf_menu.append(
+            generate_menu_draw(menu_type.bl_idname, menu_type.bl_label)
+        )
+        shader_cat_list.append(menu_type)
 
 
 class NODE_MT_sdf_menu(Menu):
