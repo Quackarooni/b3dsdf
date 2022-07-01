@@ -74,7 +74,6 @@ def shader_cat_generator():
             (bpy.types.Menu,),
             {
                 "bl_idname": "NODE_MT_category_" + itemid.replace(" ", "_"),
-                "bl_space_type": "NODE_EDITOR",
                 "bl_label": submenu_name,
                 "draw": custom_draw,
             },
