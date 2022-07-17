@@ -69,15 +69,12 @@ def shader_cat_generator():
 
         itemid = submenu_name.removesuffix("_")
         
-        menu_type = type(
-            "NODE_MT_category_" + itemid,
-            (bpy.types.Menu,),
+        submenu_class = type("NODE_MT_category_" + itemid,(bpy.types.Menu,),
             {
-                "bl_idname": "NODE_MT_category_"
-                + itemid.replace(" ", "_").replace("-", "_"),
+                "bl_idname": "NODE_MT_category_" + itemid.replace(" ", "_").replace("-", "_"),
                 "bl_label": submenu_name,
                 "draw": custom_draw,
-            },
+            }
         )
         
         def generate_menu_draw(name, label):
@@ -87,11 +84,11 @@ def shader_cat_generator():
                     self.layout.separator(factor=1.0)
             return draw_menu
             
-        bpy.utils.register_class(menu_type)
+        bpy.utils.register_class(submenu_class)
         bpy.types.NODE_MT_sdf_menu.append(
-            generate_menu_draw(menu_type.bl_idname, menu_type.bl_label)
+            generate_menu_draw(submenu_class.bl_idname, submenu_class.bl_label)
         )
-        shader_cat_list.append(menu_type)
+        shader_cat_list.append(submenu_class)
 
 
 class NODE_MT_sdf_menu(Menu):
