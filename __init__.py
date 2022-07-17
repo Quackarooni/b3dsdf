@@ -121,14 +121,10 @@ class NODE_OT_group_add(Operator):
     @staticmethod
     def store_mouse_cursor(context, event):
         space = context.space_data
-        tree = space.edit_tree
-
         if context.region.type == "WINDOW":
-            space.cursor_location_from_region(
-                event.mouse_region_x, event.mouse_region_y
-            )
+            space.cursor_location_from_region(event.mouse_region_x, event.mouse_region_y)
         else:
-            space.cursor_location = tree.view_center
+            space.cursor_location = space.edit_tree.view_center
 
     @classmethod
     def poll(cls, context):
