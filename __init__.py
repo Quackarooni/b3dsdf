@@ -42,7 +42,7 @@ dir_path = os.path.dirname(__file__)
 def shader_cat_generator():
     shader_cat_list.clear()
     
-    for submenu_name in sdf_group_cache.keys():
+    for submenu_label in sdf_group_cache.keys():
         def custom_draw(self, context):
             layout = self.layout
             for group_name in sdf_group_cache[self.bl_label]:
@@ -67,27 +67,25 @@ def shader_cat_generator():
                 if tooltip != []:
                     props.tooltip = tooltip[0]
 
-        itemid = submenu_name.removesuffix("_")
-        
-        submenu_class = type("NODE_MT_category_" + itemid,(bpy.types.Menu,),
-            {
-                "bl_idname": "NODE_MT_category_" + itemid.replace(" ", "_").replace("-", "_"),
-                "bl_label": submenu_name,
-                "draw": custom_draw,
-            }
-        )
-        
         def generate_menu_draw(name, label):
             def draw_menu(self, context):
                 self.layout.menu(name, text=label.removesuffix("_"))
                 if "_" in label:
                     self.layout.separator(factor=1.0)
             return draw_menu
+
+        itemid = submenu_label.removesuffix("_").replace(" ", "_").replace("-", "_")
+        submenu_idname = "NODE_MT_category_" + itemid
+        submenu_class = type(submenu_idname,(bpy.types.Menu,),
+            {
+                "bl_idname": submenu_idname,
+                "bl_label": submenu_label,
+                "draw": custom_draw,
+            }
+        )
             
         bpy.utils.register_class(submenu_class)
-        bpy.types.NODE_MT_sdf_menu.append(
-            generate_menu_draw(submenu_class.bl_idname, submenu_class.bl_label)
-        )
+        bpy.types.NODE_MT_sdf_menu.append(generate_menu_draw(submenu_idname, submenu_label))
         shader_cat_list.append(submenu_class)
 
 
