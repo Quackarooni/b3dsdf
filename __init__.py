@@ -29,7 +29,7 @@ from bpy.types import Operator, Menu
 from bpy.props import StringProperty
 
 
-shader_cat_list = []
+submenu_classes = []
 category_draw_funcs = []
 dir_path = os.path.dirname(__file__)
 
@@ -47,12 +47,11 @@ class NODE_MT_sdf_menu(Menu):
     def draw(self, context):
         pass
 
-
-class NODE_OT_group_add(Operator):
+class NODE_OT_append_group(Operator):
     """Add a node group"""
 
-    bl_idname = "b3dsdf.group_add"
-    bl_label = "Add node group"
+    bl_idname = "b3dsdf.append_group"
+    bl_label = "Append Node Group"
     bl_description = "Append Node Group"
     bl_options = {"REGISTER", "UNDO"}
 
@@ -100,20 +99,20 @@ class NODE_OT_group_add(Operator):
 
 
 def register():
-    shader_cat_list.clear()
+    submenu_classes.clear()
     category_draw_funcs.clear()
 
-    with open(os.path.join(os.path.dirname(__file__), "shader_nodes.json"), "r") as f:
+    with open(os.path.join(dir_path, "shader_nodes.json"), "r") as f:
         sdf_group_cache = json.loads(f.read())
 
     if not hasattr(bpy.types, "NODE_MT_sdf_menu"):
         bpy.utils.register_class(NODE_MT_sdf_menu)
         bpy.types.NODE_MT_add.append(add_sdf_button)
-    bpy.utils.register_class(NODE_OT_group_add)
+    bpy.utils.register_class(NODE_OT_append_group)
 
     # adapted from https://github.com/blender/blender/blob/master/release/scripts/modules/nodeitems_utils.py
     for submenu_label in sdf_group_cache.keys():
-        def custom_draw(self, context):
+        def submenu_draw(self, context):
             layout = self.layout
             for group_name in sdf_group_cache[self.bl_label]:
                 if group_name == "_":
@@ -125,7 +124,7 @@ def register():
 
                 group_name, *tooltip = group_name.split("@")
                 props = layout.operator(
-                    NODE_OT_group_add.bl_idname,
+                    NODE_OT_append_group.bl_idname,
                     text=group_name
                     .replace("sd", "")
                     .replace("op", "")
@@ -137,12 +136,6 @@ def register():
                 if tooltip != []:
                     props.tooltip = tooltip[0]
 
-        def generate_menu_draw(name, label):
-            def draw_menu(self, context):
-                self.layout.menu(name, text=label.removesuffix("_"))
-                if "_" in label:
-                    self.layout.separator(factor=1.0)
-            return draw_menu
 
         itemid = submenu_label.removesuffix("_").replace(" ", "_").replace("-", "_")
         submenu_idname = "NODE_MT_category_" + itemid
@@ -150,16 +143,22 @@ def register():
             {
                 "bl_idname": submenu_idname,
                 "bl_label": submenu_label,
-                "draw": custom_draw,
+                "draw": submenu_draw,
             }
         )
-            
-        draw_func = generate_menu_draw(submenu_idname, submenu_label)
+        
+        def generate_draw_func(name, label):
+            def draw(self, context):
+                self.layout.menu(name, text=label.removesuffix("_"))
+                if "_" in label:
+                    self.layout.separator(factor=1.0)
+            return draw
+        draw_func = generate_draw_func(submenu_idname, submenu_label)    
 
         bpy.utils.register_class(submenu_class)
         bpy.types.NODE_MT_sdf_menu.append(draw_func)
 
-        shader_cat_list.append(submenu_class)
+        submenu_classes.append(submenu_class)
         category_draw_funcs.append(draw_func)
 
 
@@ -170,4 +169,4 @@ def unregister():
     if hasattr(bpy.types, "NODE_MT_sdf_menu"):
         bpy.utils.unregister_class(NODE_MT_sdf_menu)
         bpy.types.NODE_MT_add.remove(add_sdf_button)
-    bpy.utils.unregister_class(NODE_OT_group_add)
+    bpy.utils.unregister_class(NODE_OT_append_group)
