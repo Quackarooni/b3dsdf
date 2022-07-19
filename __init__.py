@@ -29,15 +29,12 @@ from bpy.types import Operator, Menu
 from bpy.props import StringProperty
 
 
-def add_sdf_button(self, context):
-    self.layout.menu("NODE_MT_sdf_menu", text="SDF", icon="CON_TRANSFORM")
-
-
-sdf_group_cache = {}
 shader_cat_list = []
 category_draw_funcs = []
-
 dir_path = os.path.dirname(__file__)
+
+def add_sdf_button(self, context):
+    self.layout.menu("NODE_MT_sdf_menu", text="SDF", icon="CON_TRANSFORM")
 
 class NODE_MT_sdf_menu(Menu):
     bl_label = "SDF"
@@ -158,7 +155,7 @@ def register():
         )
             
         draw_func = generate_menu_draw(submenu_idname, submenu_label)
-        
+
         bpy.utils.register_class(submenu_class)
         bpy.types.NODE_MT_sdf_menu.append(draw_func)
 
