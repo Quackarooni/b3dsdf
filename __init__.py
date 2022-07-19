@@ -88,9 +88,7 @@ class NODE_OT_append_group(Operator):
                 data_to.node_groups.append(self.group_name)
 
         bpy.ops.node.add_group(name=self.group_name)
-        for node in context.selected_nodes:
-            node.location = context.space_data.cursor_location
-        bpy.ops.transform.translate("INVOKE_DEFAULT")
+        bpy.ops.node.translate_attach_remove_on_cancel("INVOKE_DEFAULT")
         return {"FINISHED"}
 
     def invoke(self, context, event):
