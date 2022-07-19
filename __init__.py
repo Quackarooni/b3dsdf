@@ -35,6 +35,7 @@ def add_sdf_button(self, context):
 
 sdf_group_cache = {}
 shader_cat_list = []
+category_draw_funcs = []
 
 dir_path = os.path.dirname(__file__)
 
@@ -102,7 +103,8 @@ class NODE_OT_group_add(Operator):
 
 
 def register():
-    global sdf_group_cache
+    shader_cat_list.clear()
+    category_draw_funcs.clear()
 
     with open(os.path.join(os.path.dirname(__file__), "shader_nodes.json"), "r") as f:
         sdf_group_cache = json.loads(f.read())
@@ -113,9 +115,7 @@ def register():
     bpy.utils.register_class(NODE_OT_group_add)
 
     # adapted from https://github.com/blender/blender/blob/master/release/scripts/modules/nodeitems_utils.py
-    shader_cat_list.clear()
-    
-    for submenu_label in sdf_group_cache.keys():
+    for submenu_label, submenu_contents in sdf_group_cache.items():
         def custom_draw(self, context):
             layout = self.layout
             for group_name in sdf_group_cache[self.bl_label]:
@@ -157,11 +157,19 @@ def register():
             }
         )
             
+        draw_func = generate_menu_draw(submenu_idname, submenu_label)
+        
         bpy.utils.register_class(submenu_class)
-        bpy.types.NODE_MT_sdf_menu.append(generate_menu_draw(submenu_idname, submenu_label))
+        bpy.types.NODE_MT_sdf_menu.append(draw_func)
+
         shader_cat_list.append(submenu_class)
+        category_draw_funcs.append(draw_func)
+
 
 def unregister():
+    for draw_func in category_draw_funcs:
+        bpy.types.NODE_MT_sdf_menu.remove(draw_func)
+
     if hasattr(bpy.types, "NODE_MT_sdf_menu"):
         bpy.utils.unregister_class(NODE_MT_sdf_menu)
         bpy.types.NODE_MT_add.remove(add_sdf_button)
