@@ -160,6 +160,8 @@ def register():
 def unregister():
     for draw_func in category_draw_funcs:
         bpy.types.NODE_MT_sdf_menu.remove(draw_func)
+    for cls in submenu_classes:
+        bpy.utils.unregister_class(cls)
 
     if hasattr(bpy.types, "NODE_MT_sdf_menu"):
         bpy.utils.unregister_class(NODE_MT_sdf_menu)
