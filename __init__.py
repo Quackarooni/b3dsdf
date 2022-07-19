@@ -33,7 +33,7 @@ submenu_classes = []
 category_draw_funcs = []
 dir_path = os.path.dirname(__file__)
 
-def add_sdf_button(self, context):
+def draw_sdf_menu(self, context):
     self.layout.menu("NODE_MT_sdf_menu", text="SDF", icon="CON_TRANSFORM")
 
 class NODE_MT_sdf_menu(Menu):
@@ -48,8 +48,6 @@ class NODE_MT_sdf_menu(Menu):
         pass
 
 class NODE_OT_append_group(Operator):
-    """Add a node group"""
-
     bl_idname = "b3dsdf.append_group"
     bl_label = "Append Node Group"
     bl_description = "Append Node Group"
@@ -107,7 +105,7 @@ def register():
 
     if not hasattr(bpy.types, "NODE_MT_sdf_menu"):
         bpy.utils.register_class(NODE_MT_sdf_menu)
-        bpy.types.NODE_MT_add.append(add_sdf_button)
+        bpy.types.NODE_MT_add.append(draw_sdf_menu)
     bpy.utils.register_class(NODE_OT_append_group)
 
     # adapted from https://github.com/blender/blender/blob/master/release/scripts/modules/nodeitems_utils.py
@@ -168,5 +166,5 @@ def unregister():
 
     if hasattr(bpy.types, "NODE_MT_sdf_menu"):
         bpy.utils.unregister_class(NODE_MT_sdf_menu)
-        bpy.types.NODE_MT_add.remove(add_sdf_button)
+        bpy.types.NODE_MT_add.remove(draw_sdf_menu)
     bpy.utils.unregister_class(NODE_OT_append_group)
