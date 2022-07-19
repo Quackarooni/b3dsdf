@@ -67,9 +67,17 @@ class NODE_OT_append_group(Operator):
         else:
             space.cursor_location = space.edit_tree.view_center
 
+    @staticmethod
+    def search_for_blendfile():
+        for file in os.listdir(dir_path):
+            if file.endswith(".blend"):
+                return os.path.join(dir_path, file)
+        else:
+            raise FileNotFoundError("No .blend File in directory " + dir_path)       
+
     @classmethod
     def poll(cls, context):
-        return context.space_data.node_tree
+        return context.space_data.tree_type == "ShaderNodeTree"
 
     @classmethod
     def description(self, context, props):
@@ -77,13 +85,7 @@ class NODE_OT_append_group(Operator):
 
     def execute(self, context):
         if self.group_name not in bpy.data.node_groups:
-            for file in os.listdir(dir_path):
-                if file.endswith(".blend"):
-                    filepath = os.path.join(dir_path, file)
-                    break
-            else:
-                raise FileNotFoundError("No .blend File in directory " + dir_path)
-        
+            filepath = self.search_for_blendfile()
             with bpy.data.libraries.load(filepath, link=False) as (data_from, data_to):
                 data_to.node_groups.append(self.group_name)
 
