@@ -121,14 +121,11 @@ def register():
                     continue
 
                 group_name, *tooltip = group_name.split("@")
-                props = layout.operator(
-                    NODE_OT_append_group.bl_idname,
-                    text=group_name
-                    .replace("sd", "")
-                    .replace("op", "")
-                    .replace("3D", "")
-                    .replace("LN", ""),
-                )
+                group_label = group_name
+                for prefix in ("sd", "op", "3D", "LN"):
+                    group_label = group_label.replace(prefix, "")
+
+                props = layout.operator(NODE_OT_append_group.bl_idname, text=group_label)
                 props.group_name = group_name
                 # Override tooltip
                 if tooltip != []:
