@@ -112,7 +112,7 @@ def register():
     bpy.utils.register_class(NODE_OT_group_add)
 
     # adapted from https://github.com/blender/blender/blob/master/release/scripts/modules/nodeitems_utils.py
-    for submenu_label, submenu_contents in sdf_group_cache.items():
+    for submenu_label in sdf_group_cache.keys():
         def custom_draw(self, context):
             layout = self.layout
             for group_name in sdf_group_cache[self.bl_label]:
