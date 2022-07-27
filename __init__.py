@@ -30,11 +30,55 @@ from bpy.props import StringProperty
 
 
 submenu_classes = []
-category_draw_funcs = []
+submenu_draw_funcs = []
 dir_path = os.path.dirname(__file__)
 
 def draw_sdf_menu(self, context):
     self.layout.menu("NODE_MT_sdf_menu", text="SDF", icon="CON_TRANSFORM")
+
+def append_submenu_to_parent(name, label):
+    def draw(self, context):
+        self.layout.menu(name, text=label.removesuffix("_"))
+        if "_" in label:
+            self.layout.separator(factor=1.0)
+    submenu_draw_funcs.append(draw)
+    bpy.types.NODE_MT_sdf_menu.append(draw)
+    return draw
+
+def generate_submenu(label, idname, contents):
+    def draw(self, context):
+        layout = self.layout
+        for group_name in contents:
+            if group_name == "_":
+                layout.separator(factor=1.0)
+                continue
+            if group_name.startswith("+"):
+                layout.label(text=group_name.removeprefix("+"))
+                continue
+
+            group_name, *tooltip = group_name.split("@")
+            group_label = group_name
+            for prefix in ("sd", "op", "3D", "LN"):
+                group_label = group_label.replace(prefix, "")
+
+            props = layout.operator(NODE_OT_append_group.bl_idname, text=group_label)
+            props.group_name = group_name
+            # Override tooltip
+            if tooltip != []:
+                props.tooltip = tooltip[0]
+
+
+    submenu_class = type(idname,(bpy.types.Menu,),
+        {
+            "bl_idname": idname,
+            "bl_label": label,
+            "draw": draw,
+        }
+    )
+
+    submenu_classes.append(submenu_class)
+    bpy.utils.register_class(submenu_class)
+
 
 class NODE_MT_sdf_menu(Menu):
     bl_label = "SDF"
@@ -98,7 +142,7 @@ class NODE_OT_append_group(Operator):
 
 def register():
     submenu_classes.clear()
-    category_draw_funcs.clear()
+    submenu_draw_funcs.clear()
 
     with open(os.path.join(dir_path, "shader_nodes.json"), "r") as f:
         sdf_group_cache = json.loads(f.read())
@@ -109,56 +153,15 @@ def register():
     bpy.utils.register_class(NODE_OT_append_group)
 
     # adapted from https://github.com/blender/blender/blob/master/release/scripts/modules/nodeitems_utils.py
-    for submenu_label in sdf_group_cache.keys():
-        def submenu_draw(self, context):
-            layout = self.layout
-            for group_name in sdf_group_cache[self.bl_label]:
-                if group_name == "_":
-                    layout.separator(factor=1.0)
-                    continue
-                if group_name.startswith("+"):
-                    layout.label(text=group_name.removeprefix("+"))
-                    continue
+    for submenu_label, submenu_contents in sdf_group_cache.items():
+        submenu_idname = "NODE_MT_category_" + submenu_label.removesuffix("_").replace(" ", "_").replace("-", "_")
 
-                group_name, *tooltip = group_name.split("@")
-                group_label = group_name
-                for prefix in ("sd", "op", "3D", "LN"):
-                    group_label = group_label.replace(prefix, "")
-
-                props = layout.operator(NODE_OT_append_group.bl_idname, text=group_label)
-                props.group_name = group_name
-                # Override tooltip
-                if tooltip != []:
-                    props.tooltip = tooltip[0]
-
-
-        itemid = submenu_label.removesuffix("_").replace(" ", "_").replace("-", "_")
-        submenu_idname = "NODE_MT_category_" + itemid
-        submenu_class = type(submenu_idname,(bpy.types.Menu,),
-            {
-                "bl_idname": submenu_idname,
-                "bl_label": submenu_label,
-                "draw": submenu_draw,
-            }
-        )
-        
-        def generate_draw_func(name, label):
-            def draw(self, context):
-                self.layout.menu(name, text=label.removesuffix("_"))
-                if "_" in label:
-                    self.layout.separator(factor=1.0)
-            return draw
-        draw_func = generate_draw_func(submenu_idname, submenu_label)    
-
-        bpy.utils.register_class(submenu_class)
-        bpy.types.NODE_MT_sdf_menu.append(draw_func)
-
-        submenu_classes.append(submenu_class)
-        category_draw_funcs.append(draw_func)
+        generate_submenu(submenu_label, submenu_idname, submenu_contents)
+        append_submenu_to_parent(submenu_idname, submenu_label)
 
 
 def unregister():
-    for draw_func in category_draw_funcs:
+    for draw_func in submenu_draw_funcs:
         bpy.types.NODE_MT_sdf_menu.remove(draw_func)
     for cls in submenu_classes:
         bpy.utils.unregister_class(cls)
