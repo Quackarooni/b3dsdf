@@ -103,11 +103,7 @@ class NODE_OT_append_group(Operator):
     # adapted from https://github.com/blender/blender/blob/master/release/scripts/startup/bl_operators/node.py
     @staticmethod
     def store_mouse_cursor(context, event):
-        space = context.space_data
-        if context.region.type == "WINDOW":
-            space.cursor_location_from_region(event.mouse_region_x, event.mouse_region_y)
-        else:
-            space.cursor_location = space.edit_tree.view_center
+        context.space_data.cursor_location_from_region(event.mouse_region_x, event.mouse_region_y)
 
     @staticmethod
     def search_for_blendfile():
