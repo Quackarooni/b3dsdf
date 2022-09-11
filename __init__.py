@@ -25,6 +25,7 @@ bl_info = {
 import json
 import bpy
 import os
+import re
 from bpy.types import Operator, Menu
 from bpy.props import StringProperty
 
@@ -121,24 +122,33 @@ class NODE_OT_append_group(Operator):
     def description(self, context, props):
         return props.tooltip
 
+    @staticmethod
+    def remove_duplicate_imports(added_groups):
+        for group in added_groups:
+            for node in group.nodes:
+                if node.type == "GROUP":
+                    unduped_name, *_ = re.split("\.\d+$", node.node_tree.name)
+                    node.node_tree = bpy.data.node_groups[unduped_name]
+        for group in added_groups:
+            split_name, *_ = re.split("\.\d+$", group.name)
+        
+            if len(_) > 0 and split_name in bpy.data.node_groups:
+                bpy.data.node_groups.remove(group)
+
+
     def execute(self, context):
         if self.group_name not in bpy.data.node_groups:
+            
             old_groups = set(bpy.data.node_groups)
 
             filepath = self.search_for_blendfile()
             with bpy.data.libraries.load(filepath, link=False) as (data_from, data_to):
                 data_to.node_groups.append(self.group_name)
-    
+
             added_groups = tuple(set(bpy.data.node_groups)-old_groups)
-            for group in added_groups:
-                for node in group.nodes:
-                    if node.type == "GROUP":
-                        node.node_tree = bpy.data.node_groups[node.node_tree.name.split(".")[0]]
-            for group in added_groups:
-                group_name = group.name.split(".")
-                #remove nodegroup if duplicate already exists
-                if len(group_name) >= 2 and group_name[0] in bpy.data.node_groups:
-                    bpy.data.node_groups.remove(group)              
+
+            if len(added_groups) > 1:
+                self.remove_duplicate_imports(added_groups)
 
         bpy.ops.node.add_group(name=self.group_name)
         context.active_node.location = context.space_data.cursor_location
