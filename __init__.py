@@ -106,14 +106,6 @@ class NODE_OT_append_group(Operator):
     def store_mouse_cursor(context, event):
         context.space_data.cursor_location_from_region(event.mouse_region_x, event.mouse_region_y)
 
-    @staticmethod
-    def search_for_blendfile():
-        for file in os.listdir(dir_path):
-            if file.endswith(".blend"):
-                return os.path.join(dir_path, file)
-        else:
-            raise FileNotFoundError("No .blend File in directory " + dir_path)       
-
     @classmethod
     def poll(cls, context):
         return context.space_data.tree_type == "ShaderNodeTree"
@@ -121,6 +113,14 @@ class NODE_OT_append_group(Operator):
     @classmethod
     def description(self, context, props):
         return props.tooltip
+
+    @staticmethod
+    def search_for_blendfile():
+        for file in os.listdir(dir_path):
+            if file.endswith(".blend"):
+                return os.path.join(dir_path, file)
+        else:
+            raise FileNotFoundError("No .blend File in directory " + dir_path)       
 
     @staticmethod
     def remove_duplicate_imports(added_groups):
@@ -138,9 +138,7 @@ class NODE_OT_append_group(Operator):
 
     def execute(self, context):
         if self.group_name not in bpy.data.node_groups:
-            
             old_groups = set(bpy.data.node_groups)
-
             filepath = self.search_for_blendfile()
             with bpy.data.libraries.load(filepath, link=False) as (data_from, data_to):
                 data_to.node_groups.append(self.group_name)
