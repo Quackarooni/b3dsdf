@@ -24,15 +24,15 @@ bl_info = {
 }
 import json
 import bpy
-import os
 import re
+from pathlib import Path
 from bpy.types import Operator, Menu
 from bpy.props import StringProperty
 
 
 submenu_classes = []
 submenu_draw_funcs = []
-dir_path = os.path.dirname(__file__)
+dir_path = Path.cwd()
 
 def draw_sdf_menu(self, context):
     self.layout.menu("NODE_MT_sdf_menu", text="SDF", icon="CON_TRANSFORM")
@@ -116,9 +116,9 @@ class NODE_OT_append_group(Operator):
 
     @staticmethod
     def search_for_blendfile():
-        for file in os.listdir(dir_path):
-            if file.endswith(".blend"):
-                return os.path.join(dir_path, file)
+        for filepath in dir_path.iterdir():
+            if filepath.suffix == ".blend":
+                return str(filepath)
         else:
             raise FileNotFoundError("No .blend File in directory " + dir_path)       
 
@@ -162,7 +162,7 @@ def register():
     submenu_classes.clear()
     submenu_draw_funcs.clear()
 
-    with open(os.path.join(dir_path, "shader_nodes.json"), "r") as f:
+    with open(dir_path / "shader_nodes.json", "r") as f:
         sdf_group_cache = json.loads(f.read())
 
     if not hasattr(bpy.types, "NODE_MT_sdf_menu"):
