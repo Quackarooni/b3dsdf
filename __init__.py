@@ -32,7 +32,7 @@ from bpy.props import StringProperty
 
 submenu_classes = []
 submenu_draw_funcs = []
-dir_path = Path.cwd()
+dir_path = Path(__file__).parent
 
 def draw_sdf_menu(self, context):
     self.layout.menu("NODE_MT_sdf_menu", text="SDF", icon="CON_TRANSFORM")
