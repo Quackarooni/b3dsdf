@@ -87,7 +87,10 @@ class NODE_MT_sdf_menu(Menu):
 
     @classmethod
     def poll(cls, context):
-        return context.space_data.tree_type == "ShaderNodeTree"
+        try:
+            return context.space_data.tree_type == "ShaderNodeTree"
+        except AttributeError:
+            return False
 
     def draw(self, context):
         pass
@@ -108,7 +111,10 @@ class NODE_OT_append_group(Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.space_data.tree_type == "ShaderNodeTree"
+        try:
+            return context.space_data.tree_type == "ShaderNodeTree"
+        except AttributeError:
+            return False
 
     @classmethod
     def description(self, context, props):
